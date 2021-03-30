@@ -20,8 +20,21 @@
 	 	for(int i = 2; i <= argc; i++){
 			listingFile.open(argv[i-1]);
 			// while it is true it runs	 
+			// hilarious. While the line is being read and no new line is found, the while loop runs.
 			while(noNewline){
 				fileChar = listingFile.get();
+				/* Columns 0-7:   Address
+				 * Columns 8-15:  Symbols
+				 * Columns 16-24: Instructions
+				 * Columns 25-50: Parameters
+				 * Columns 51-58: Instruction code
+				 *
+				 * Columns that are vital to creating the object file: 
+				 * Symbols, Instructions, Instruction Code
+				 *
+				 * Columns that are vital to creating the ESTAB:
+				 * Address, Instructions, Parameters, 
+				 */
 				//*********************************************	
 				// 		this if keeps track of the newline/carriage returns
 				//		what we could do is take a note at every index that there is a 13 or 10
