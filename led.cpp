@@ -16,7 +16,7 @@ void Print(vector<char> data, vector<int> newLines){
 	char charValue;
 	stringstream streamValue;	
 	string sValue;
-	
+	int arrSize;
 	// printing the file
 	//for(int i  = 0; i < int(data.size()-1); i++){
 	//	cout << char(data[i]);
@@ -32,17 +32,18 @@ void Print(vector<char> data, vector<int> newLines){
 	int acounter = 0;
 	int next = 0;
 	int setI = 0;
+	int rows = 0;
 	bool lastOP = false;
 	bool restart = false;
 	bool foundLine = false;
+	bool asteriskFound = false;
 	int arrayCounter = 0;
 	int fileSize = 0;
 	int line = 0;
 //	string test = "25B0";
 while(fileSize != data.size()-1){
 	acounter = 0;
-	
-	
+	rows++;
 	//address
 	for(int i = setI; i < data.size()-1;i++){
 		if(int(data[i]) == 46){ //found a comment
@@ -57,13 +58,12 @@ while(fileSize != data.size()-1){
 			}
 			if(acounter == 7 ){	
 					address[arrayCounter] = sValue;
-					cout<<"address is "<<address[arrayCounter]<<endl;
+					//cout<<"address is "<<address[arrayCounter]<<endl;
 					next = i+1;
 					break;
 			
 			}
 		}
-		
 	}
 	
 	////symbol
@@ -76,14 +76,15 @@ while(fileSize != data.size()-1){
 		}else{
 			if(acounter < 7){ 
 				charValue = char(data[i]); //storing the char
+				if(charValue == '*'){
+					asteriskFound = true;
+				}
 				sValue += charValue; 
-		
-				acounter ++;
-				
+				acounter ++;	
 			}
 			if(acounter == 7 ){	
 					symbols[arrayCounter] = sValue;
-					cout<<"symbols is "<<symbols[arrayCounter]<<endl;
+				//	cout<<"symbols is "<<symbols[arrayCounter]<<endl;
 					next = i+1;
 					break;
 			}
@@ -97,13 +98,9 @@ while(fileSize != data.size()-1){
 			i = newLines[newlineFound];	// jump to the next line
 			newlineFound++;
 		}else if(int(data[i+1]) == 10){
-			cout << "next character the line ends instruction"<<endl;
 			instruction[arrayCounter] = sValue;
-			cout<<"instruction: "<<instruction[arrayCounter]<<endl;
-		//	cout<<i<<endl;
+			//cout<<"instruction: "<<instruction[arrayCounter]<<endl;
 			i = newLines[newlineFound];	// jump to the next line
-		//	cout<<"JUMPING TO "<<newLines[newlineFound]<<char(data[i])<<char(data[i+1])<<char(data[i+2])<<char(data[i+3])<<char(data[i+4])<<endl;
-		//	cout<<"JUMPING FROM "<<newLines[newlineFound]<<char(data[i])<<char(data[i-1])<<char(data[i-2])<<char(data[i-3])<<char(data[i-4])<<endl;
 			newlineFound++;
 			next = i+1;
 			foundLine = true;
@@ -117,33 +114,37 @@ while(fileSize != data.size()-1){
 			}
 			if(acounter == 9){	
 					instruction[arrayCounter] = sValue;
-					cout<<"instruction is"<<instruction[arrayCounter]<<endl;
+					//cout<<"instruction is"<<instruction[arrayCounter]<<endl;
 					next = i+1;
 					break;
 			}
 		}
 	}
-	if(foundLine == true){cout<<"found line is true"<<endl; lastOP = true;}else{
+	if(foundLine == true){lastOP = true;}else{
 // parameter	
 	sValue = "";
 	acounter = 0;
 		for(int i = next; i < data.size()-1; i++){
 		if(int(data[i]) == 46){ //found a comment
 		parameter[arrayCounter] = sValue;
-		cout<<"parameter is "<<parameter[arrayCounter]<<endl;
+		//cout<<"parameter is "<<parameter[arrayCounter]<<endl;
 			i = newLines[newlineFound];	// jump to the next line
 			newlineFound++;
 			next = i+1;
 			restart = true;
+			opcode[arrayCounter] = " ";
+			//cout<<"opcode NO: "<<opcode[arrayCounter]<<endl;
 			break;
 		}else if (int(data[i+1]) == 10){
-			cout << "next character the line ends"<<endl;
+			//cout << "next character the line ends"<<endl;
 			parameter[arrayCounter] = sValue;
-			cout<<"parameter: "<<parameter[arrayCounter]<<endl;
+			//cout<<"parameter: "<<parameter[arrayCounter]<<endl;
 			i = newLines[newlineFound];	// jump to the next line
 			newlineFound++;
 			next = i+1;
 			restart = true;
+			opcode[arrayCounter] = " ";
+			//cout<<"opcode NO: "<<opcode[arrayCounter]<<endl;
 			break;
 		}
 		else{
@@ -154,18 +155,57 @@ while(fileSize != data.size()-1){
 			}
 			if(acounter == 25){	// if the counter reaches 25
 					parameter[arrayCounter] = sValue;
-					cout<<"parameter NORMAL: "<<parameter[arrayCounter]<<endl;
+				//	cout<<"parameter NORMAL: "<<parameter[arrayCounter]<<endl;
 					next = i+1;
 					restart = false;
 					break;	
 			}
 		}
 	}
+					
 	//if(hasObjectCode == false){break;}
 	if(restart == true){
-		cout<<"restart is true"<<endl;
-	}else{
+		//cout<<"restart is true"<<endl;
+	}else if(lastOP){
+		//cout<<"lastOp was reached"<<endl;
+		sValue = "";
+		acounter = 0;
+		for(int i = next; i <= data.size(); i++){
+			if(acounter < 10){
+				charValue = char(data[i]); //storing the char
+				sValue += charValue; 
+				acounter ++;
+				}
+			if(i == data.size()){
+				opcode[arrayCounter] = sValue;
+				//cout<<"opcode is "<<opcode[arrayCounter]<<endl;
+				//cout<<i<<endl;
+				arrSize = i;
+				break;
+				}
+		}
+		break;
+		}else if(asteriskFound){
+		sValue = "";
+		acounter = 0;
+		for(int i = next; i <= data.size(); i++){
+			if(acounter < 10){
+				charValue = char(data[i]); //storing the char
+				sValue += charValue; 
+				acounter ++;
+				}
+			if(i == data.size()){
+				opcode[arrayCounter] = sValue;
+				//cout<<"opcode is "<<opcode[arrayCounter]<<endl;
+				arrSize = i;
+				break;
+				}
+		}
+		break;
+		}
+		else{
 		
+		//cout<<"entered the end"<<endl;
 		
 	// opcode
 	sValue = "";
@@ -173,17 +213,16 @@ while(fileSize != data.size()-1){
 		for(int i = next; i < data.size()-1; i++){
 		if(int(data[i]) == 46){ //found a comment
 		opcode[arrayCounter] = sValue;
-		cout<<"opcode is "<<opcode[arrayCounter]<<endl;
-		//cout<<"comment found in opcode"<<endl;
+		//cout<<"opcode is "<<opcode[arrayCounter]<<endl;
 			i = newLines[newlineFound];	// jump to the next line
 			newlineFound++;
 			restart = true;
 			next = i+1;
 			break;
 		}else if(int(data[i+1]) == 10){ // newline found
-			cout<< "reached the end of the line"<<endl;
+		//	cout<< "reached the end of the line"<<endl;
 			opcode[arrayCounter] = sValue;
-			cout<<"opcode is "<<opcode[arrayCounter]<<endl;
+		//	cout<<"opcode is "<<opcode[arrayCounter]<<endl;
 			i = newLines[newlineFound];	// jump to the next line
 			newlineFound++;
 			restart = true;
@@ -191,7 +230,6 @@ while(fileSize != data.size()-1){
 			break;
 		}
 		else{
-			if(lastOP){
 			if(acounter < 13){ 
 				charValue = char(data[i]); //storing the char
 				sValue += charValue; 
@@ -199,19 +237,7 @@ while(fileSize != data.size()-1){
 			}
 			if(acounter == 13){	
 					opcode[arrayCounter] = sValue;
-					cout<<"opcode is "<<opcode[arrayCounter]<<endl;
-					next = i+1;
-					break;
-			}
-		}
-			if(acounter < 12){ 
-				charValue = char(data[i]); //storing the char
-				sValue += charValue; 
-				acounter ++;	
-			}
-			if(acounter == 12){	
-					opcode[arrayCounter] = sValue;
-					cout<<"opcode is "<<opcode[arrayCounter]<<endl;
+					//cout<<"opcode is "<<opcode[arrayCounter]<<endl;
 					next = i+1;
 					break;
 			}
@@ -219,25 +245,18 @@ while(fileSize != data.size()-1){
 	}
 	}
 }	
-	
-	
 	foundLine = false; 
-	cout<<"pain"<<endl;
 	arrayCounter++;
 	sValue = "";
 	setI = next;
 	fileSize = next;
-	cout << "FILE SIZE"<<fileSize << endl;
 	line ++;
-	if(line == 18){
-		break;
-	}
-	if(fileSize == data.size()-1){
-		break;
-	}
+
 }
 
-		cout<<"outside"<<endl;	
+		for(int i = 0; i <rows; i ++){
+	cout<<address[i]<<" " << symbols[i]<<" "<<instruction[i]<<" "<<parameter[i]<<" "<<opcode[i]<<" "<<endl;
+	}
 
 //CONVERTING A STRING TO ITS HEX VALUE REPRESENTATION			
 //	std::string a = "001A";
