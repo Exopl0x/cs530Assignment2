@@ -26,7 +26,7 @@ void StoreData(vector<char> data, vector<int> newLines, string Mainaddress[],str
 	int arrSize;
 	// printing the file
 //for(int i  = 0; i < int(data.size()-1); i++){
-	//	cout << char(data[i]);
+		//cout << char(data[i]);
 	//}
 
 		for(int i  = 0; i < data.size()-1; i++){// saving the spots where there is a space in this file
@@ -54,6 +54,7 @@ while(fileSize != data.size()-1){
 	//address
 	for(int i = setI; i < data.size()-1;i++){
 		if(int(data[i]) == 46){ //found a comment
+		cout << "Found Comma" << endl;
 		i = newLines[newlineFound];	// jump to the next line
 		newlineFound++;
 		}
@@ -608,7 +609,7 @@ if(firstPass == true){
  void PrintObj(string Mainaddress[], string Mainsymbols[], string Mainparameter[],string Mainopcode[],int rowNum){
 	cout<<"H";
 	 cout<<setfill(' ')<<setw(6)<<left<<Mainsymbols[0];
-	 cout<<setfill('0')<<setw(6)<<left<<Mainaddress[0];
+	 cout<<setfill('0')<<setw(6)<<left<<"000000";
 	for(int i = 0; i < rowNum; i++){
 		
 		
