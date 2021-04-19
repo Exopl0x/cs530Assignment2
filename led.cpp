@@ -604,10 +604,29 @@ if(firstPass == true){
 	 out.close();
  }
  
- void PrintObj(string Mainaddress[], string Mainsymbols[], string Mainparameter[],string Mainopcode[],string Maininstruction[], int rowNum){
+ void PrintObj(string Mainaddress[], string Mainsymbols[], string Mainparameter[],string Mainopcode[],string Maininstruction[], int rowNum, bool firstPass,char* argv[]){
+	string fileName;
+	if (firstPass)
+	{
+		fileName = (string)argv[1] + ".obj";
+	}
+	else {
+		fileName = (string)argv[2] + ".obj";
+	}
+	
+	const char* file = fileName.c_str();
+	ofstream fout;
+	fout.open(file, ios::out | ios::app);
+
 	cout<<"H";
 	 cout<<setfill(' ')<<setw(6)<<left<<Mainsymbols[0];
 	 cout<<setfill('0')<<setw(6)<<left<<"000000";
+	
+	// into object file
+	fout<<"H";
+	 fout<<setfill(' ')<<setw(6)<<left<<Mainsymbols[0];
+	 fout<<setfill('0')<<setw(6)<<left<<"000000";
+
 	 int finalLength;
 	char aChar;
 	string bob = Mainaddress[rowNum]; // length of control section
@@ -626,12 +645,17 @@ if(firstPass == true){
  }
  int power = 3;
  cout<<finalLength<<endl;
+ // Object file:
+ fout<<finalLength<<endl;
+
 	for(int i = 0; i < 4; i++){
 		finalLength += toHex[i]*pow(16.0, power);
 		power --;
 	}
 		finalLength+=3;
 	cout<<"D";	
+	// Object file:
+	fout<<"D";
 		string temp = Mainparameter[1];
 		 string param;
 		 for(int i = 0; i < temp.length(); i++){
@@ -641,6 +665,11 @@ if(firstPass == true){
 					 if(Mainsymbols[j] == param){
 						 cout<<setfill(' ')<<setw(6)<<left<<param;
 						cout<<setfill('0')<<setw(6)<<right<<Mainaddress[j];
+
+						// Object file:
+						 fout<<setfill(' ')<<setw(6)<<left<<param;
+						fout<<setfill('0')<<setw(6)<<right<<Mainaddress[j];
+
 						
 						param = "";
 						break;
@@ -655,12 +684,16 @@ if(firstPass == true){
 				  
 				 cout<<setfill(' ')<<setw(6)<<left<<param;
 				cout<<setfill('0')<<setw(6)<<right<<Mainaddress[i]<<endl;
+				 fout<<setfill(' ')<<setw(6)<<left<<param;
+				fout<<setfill('0')<<setw(6)<<right<<Mainaddress[i]<<endl;
+
 				param = "";
 					break;
 			}
 		 } 
 		 
 		 cout<<"R";
+		 fout<<"R";
 		 string temp2 = Mainparameter[2];
 		 string par;
 		 
@@ -668,6 +701,8 @@ if(firstPass == true){
 			 aChar = temp2[i];
 			 if(int(aChar) == 44){
 						 cout<<setfill(' ')<<setw(6)<<left<<par;
+						fout<<setfill(' ')<<setw(6)<<left<<par;
+
 						par = "";
 			 }else{
 			 par +=aChar;
@@ -676,12 +711,15 @@ if(firstPass == true){
 		 for(int i = 0; i < rowNum; i++){
 			  if(Mainparameter[i] == par){  
 				 cout<<setfill(' ')<<setw(6)<<left<<par;
+				 fout<<setfill(' ')<<setw(6)<<left<<par;
+
 				par = "";
 					break;
 			}
 		 }
 
 cout<<endl;		 
+fout<<endl;
 	int numOfOP = 0;
 	string holder;
 	char part;
@@ -711,16 +749,24 @@ cout<<endl;
 
 			cout<<"T";
 			cout<<setfill('0')<<setw(6)<<right<<six<<uppercase<<hex<<oneD;
+			fout<<"T";
+			fout<<setfill('0')<<setw(6)<<right<<six<<uppercase<<hex<<oneD;
+
 			for(int j = 3; j <= rowNum; j ++){
 				if(j == line){
 					six += (numOfOP - oCounter)/2; // how much is left
 					oCounter = 0;
 					cout<<endl<<"T";
 					cout<<setfill('0')<<setw(6)<<right<<six;
+					fout<<endl<<"T";
+					fout<<setfill('0')<<setw(6)<<right<<six;
+
 				}
 				holder = Mainopcode[j];
 				if(holder == " "){}else{
 				cout<< Mainopcode[j];
+				fout<< Mainopcode[j];
+
 				for(int k = 0; k < holder.length(); k++){
 				nums = holder[i];
 				oCounter++;
@@ -728,20 +774,29 @@ cout<<endl;
 				}
 			}
 			cout<<endl;
+			fout<<endl;
 			break;
 		}else if (Maininstruction[i] == "EXTDEF" && Maininstruction[i+1] != "EXTREF"){
 						cout<<"T";
 			cout<<setfill('0')<<setw(6)<<right<<six<<uppercase<<hex<<oneD;
+			fout<<"T";
+			fout<<setfill('0')<<setw(6)<<right<<six<<uppercase<<hex<<oneD;
+
 			for(int j = 3; j <= rowNum; j ++){
 				if(j == line){
 					six += (numOfOP - oCounter)/2; // how much is left
 					oCounter = 0;
 					cout<<endl<<"T";
 					cout<<setfill('0')<<setw(6)<<right<<six;
+					fout<<endl<<"T";
+					fout<<setfill('0')<<setw(6)<<right<<six;
+
 				}
 				holder = Mainopcode[j];
 				if(holder == " "){}else{
 				cout<< Mainopcode[j];
+				fout<< Mainopcode[j];
+
 				for(int k = 0; k < holder.length(); k++){
 				nums = holder[i];
 				oCounter++;
@@ -749,20 +804,29 @@ cout<<endl;
 				}
 			}
 			cout<<endl;
+			fout<<endl;
 			break;
 		}else{
-						cout<<"T";
+			cout<<"T";
 			cout<<setfill('0')<<setw(6)<<right<<six<<uppercase<<hex<<oneD;
+			fout<<"T";
+			fout<<setfill('0')<<setw(6)<<right<<six<<uppercase<<hex<<oneD;
+
 			for(int j = 3; j <= rowNum; j ++){
 				if(j == line){
 					six += (numOfOP - oCounter)/2; // how much is left
 					oCounter = 0;
 					cout<<endl<<"T";
 					cout<<setfill('0')<<setw(6)<<right<<six;
+					fout<<endl<<"T";
+					fout<<setfill('0')<<setw(6)<<right<<six;
+
 				}
 				holder = Mainopcode[j];
 				if(holder == " "){}else{
 				cout<< Mainopcode[j];
+				fout<< Mainopcode[j];
+
 				for(int k = 0; k < holder.length(); k++){
 				nums = holder[i];
 				oCounter++;
@@ -770,6 +834,8 @@ cout<<endl;
 				}
 			}
 			cout<<endl;
+			fout<<endl;
+
 			break;
 		}
 	}
@@ -782,16 +848,21 @@ cout<<endl;
 		mMod = mod[0];
 		if(int(mMod) == 43){
 			cout<<"M";
+			fout<<"M";
+
 			newAdd = Mainaddress[i];
 			////////
-			cout<<newAdd<<"05"<<"+"<<Mainsymbols[0]<<endl;;
+			cout<<newAdd<<"05"<<"+"<<Mainsymbols[0]<<endl;
+			fout<<newAdd<<"05"<<"+"<<Mainsymbols[0]<<endl;
+
 			
 		}
 		
 		
 	}
 	cout<<"E000000";
-
+	fout<<"E000000";
+	fout.close();
 
 
 	
@@ -858,7 +929,7 @@ cout<<endl;
 					data.clear();
 					///start working here
 					PrintESTAB(Mainaddress, Mainsymbols, Maininstruction, Mainparameter, Mainopcode,rowNum, addPtr, lengthPtr, firstPass);
-					PrintObj(Mainaddress, Mainsymbols, Mainparameter, Mainopcode,Maininstruction,rowNum);
+					PrintObj(Mainaddress, Mainsymbols, Mainparameter, Mainopcode,Maininstruction,rowNum,firstPass,argv);
 				}
 		  		data.push_back(fileChar);
 			} 
