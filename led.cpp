@@ -3,11 +3,17 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <math.h>
+#include <iomanip>
 	using namespace std;
-  
-void Print(vector<char> data, vector<int> newLines){
+string FixAdd(string element);
+string FixSymbols(string element);
+string FixInstructions(string element);
+string FixParameter(string element);
+string FixOpcode(string element);
+void PrintESTAB(string Mainaddress[], string Mainsymbols[], string Maininstruction[],string Mainparameter[], string Mainopcode[], int rowNum);
+void StoreData(vector<char> data, vector<int> newLines, string Mainaddress[],string Mainsymbols[],string Maininstruction[],string Mainparameter[],string Mainopcode[], int *rowPtr){
 	// convert the characers to either a string or an int then create the ESTAB
-	
 	string address [2000];
 	string symbols [2000];
 	string instruction[2000];
@@ -18,7 +24,7 @@ void Print(vector<char> data, vector<int> newLines){
 	string sValue;
 	int arrSize;
 	// printing the file
-	//for(int i  = 0; i < int(data.size()-1); i++){
+//for(int i  = 0; i < int(data.size()-1); i++){
 	//	cout << char(data[i]);
 	//}
 
@@ -49,7 +55,8 @@ while(fileSize != data.size()-1){
 		if(int(data[i]) == 46){ //found a comment
 		i = newLines[newlineFound];	// jump to the next line
 		newlineFound++;
-		}else{
+		}
+		else{
 			if(acounter < 7){ 
 				charValue = char(data[i]); //storing the char
 				sValue += charValue;
@@ -260,26 +267,289 @@ while(fileSize != data.size()-1){
 }
 
 	for(int i = 0; i <rows; i ++){
-		cout<<address[i]<<" " << symbols[i]<<" "<<instruction[i]<<" "<<parameter[i]<<" "<<opcode[i]<<" "<<endl;
+		address[i] = FixAdd(address[i]);
+		//cout<<address[i];
+		symbols[i] = FixSymbols(symbols[i]);
+		//cout<<symbols[i];
+		instruction[i] = FixInstructions(instruction[i]);
+		//cout<<instruction[i];
+		parameter[i] = FixParameter(parameter[i]);
+		//cout<<parameter[i];
+		opcode[i] = FixOpcode(opcode[i]);
+		//cout<<opcode[i];
 	}
+	*rowPtr = rows-1;
 
-//CONVERTING A STRING TO ITS HEX VALUE REPRESENTATION			
-//	std::string a = "001A";
-//	std::stringstream b;
-//	b << a;
-//	int c;
-//	b >> std::hex >> c;
-//	std::cout << c; 
-//CONVERTING A STRING TO ITS HEX VALUE REPRESENTATION	
-
+	for(int i = 0; i <rows; i++){
+		Mainaddress[i] = address[i];
+		Mainsymbols[i] = symbols[i];
+		Maininstruction[i] = instruction[i];
+		Mainparameter[i] = parameter[i];
+		Mainopcode[i] = opcode[i];
+	}	
+	
 }
+
+	string FixAdd(string element){
+		string replacement;
+		char aChar;
+		for(int i = 0; i < element.length(); i ++){
+			aChar = element[i];
+			if(int(aChar) != 32){
+				replacement += aChar;
+			}else{
+				if(element[0] == element[element.length()-1]){
+				replacement = " ";
+				break;
+				}
+			}
+		}
+	return replacement;
+}
+	string FixSymbols(string element){
+		string replacement;
+		char aChar;
+		for(int i = 0; i < element.length(); i ++){
+			aChar = element[i];
+			if(int(aChar) != 32){
+			replacement += aChar;
+			}
+		}
+		if(replacement.length() == 0){
+			replacement  = " ";
+			return replacement;
+		}
+	return replacement;
+	}
+	string FixInstructions(string element){
+		string replacement;
+		char aChar;
+		for(int i = 0; i < element.length(); i ++){
+			aChar = element[i];
+			if(int(aChar) != 32){
+				replacement += aChar;
+			}
+		}
+		return replacement;
+}
+	string FixParameter(string element){
+	string replacement;
+	char aChar;
+		for(int i = 0; i < element.length(); i ++){
+			aChar = element[i];
+			if(int(aChar) != 32){
+				replacement += aChar;
+			}
+		}
+		if(replacement.length() == 0){
+			replacement  = " ";
+			return replacement;
+		}
+	return replacement;
+}
+	string FixOpcode(string element){
+	 string replacement;
+	 char aChar;
+		for(int i = 0; i < element.length(); i ++){
+			aChar = element[i];
+			if(int(aChar) != 32){
+				replacement += aChar;
+			}
+		}
+		if(replacement.length() == 0){
+			replacement  = " ";
+			return replacement;
+		}
+	return replacement;
+ }
+ 
+ 
+ void PrintESTAB(string Mainaddress[], string Mainsymbols[], string Maininstruction[],string Mainparameter[], string Mainopcode[], int rowNum, int*addPtr, int*lengthPtr, bool firstPass){
+	 int finalLength;
+	int bob7 = 0;
+	char aChar;
+	char anotherChar;
+	string bob = Mainaddress[rowNum]; // length of control section
+	 string bob2;
+	 int toHex[4];
+	
+ for(int i = 0;i < bob.length(); i ++){
+	 aChar = bob[i];
+	 bob2 += aChar;
+	 std::stringstream b;
+	b << bob2;
+	int c;
+	b >> std::hex >> c;
+	toHex[i] = c;
+	bob2 = "";
+ }
+
+ int power = 3;
+ 
+	for(int i = 0; i < 4; i++){
+		finalLength += toHex[i]*pow(16.0, power);
+		power --;
+	}
+		finalLength+=3;
+//////////////////////	
+if(firstPass == true){
+	string addControl = Mainaddress[0]; // addres of control section
+	char aChar2;
+	 string tempStr;
+	 int toHex2[4];
+ for(int i = 0;i < 4; i ++){
+	 aChar2 = addControl[i];
+	 tempStr += aChar2;
+	 std::stringstream bb;
+	bb << tempStr;
+	int cc;
+	bb >> std::hex >> cc;
+	toHex2[i] = cc;
+	tempStr = "";
+ }
+ int power2 = 3;
+	for(int i = 0; i < 4; i++){
+		bob7 += toHex2[i]*pow(16.0, power);
+		power --;
+	}
+	
+	///////////////
+	 cout<<setfill(' ')<<setw(6)<<left<<Mainsymbols[0];
+	  cout<<"        ";
+	 cout<<"  ";
+	 cout<<setfill('0')<<setw(6)<<right<<Mainaddress[0]<<"  ";
+	 cout<<setfill('0')<<setw(6)<<right<<hex<<finalLength<<endl;
+ }else{
+	 bob7 = *lengthPtr + *addPtr;
+	 cout<<setfill(' ')<<setw(6)<<left<<Mainsymbols[0];
+	 cout<<"        ";
+	 cout<<"  ";
+	 cout<<setfill('0')<<setw(6)<<right<<hex<<bob7<<"  ";
+	 cout<<setfill('0')<<setw(6)<<right<<hex<<finalLength<<endl;
+	 
+ }
+	 if(Maininstruction[1] == "EXTDEF"){
+		 string temp = Mainparameter[1];
+		 string param;
+		 if(firstPass == true){
+		 for(int i = 0; i < temp.length(); i++){
+			 aChar = temp[i];
+			 if(int(aChar) == 44){
+				 cout<<"        ";
+				 cout<<setfill(' ')<<setw(6)<<left<<param;
+				 cout<<"  ";
+				 for(int j = 0; j < rowNum; j ++){
+					 if(Mainsymbols[j] == param){
+						
+						cout<<setfill('0')<<setw(6)<<right<<Mainaddress[j];
+						cout<<"  "<<endl;
+						param = "";
+						break;
+					 }  
+				 }
+			 }else{
+			 param +=aChar;
+			 } 
+		 }
+		 for(int i = 0; i < rowNum; i++){
+			  if(Mainsymbols[i] == param){
+				 cout<<"        ";
+				 cout<<setfill(' ')<<setw(6)<<left<<param;
+				 cout<<"  ";
+				cout<<setfill('0')<<setw(6)<<right<<Mainaddress[i];
+				cout<<"  "<<endl;
+				param = "";
+					break;
+			}
+		 } 
+	 }else{ 
+	 		 string tempADD;
+			 string tempBob;
+			  int toHex3[4];
+			  
+			  int con = 0;
+	 // if it is not the first pass we need to do math
+		 	for(int i = 0; i < temp.length(); i++){
+			 aChar = temp[i];
+			 if(int(aChar) == 44){
+				 cout<<"        ";
+				 cout<<setfill(' ')<<setw(6)<<left<<param;
+				 cout<<"  ";
+				 for(int j = 0; j < rowNum; j ++){
+					 if(Mainsymbols[j] == param){
+						cout<<setfill('0')<<setw(6)<<right<<Mainaddress[j];
+						cout<<"  "<<endl;
+						param = "";
+						break;
+					 }  
+				 }
+			 }else{
+			 param +=aChar;
+			 } 
+		 }
+		 //one extdef
+		 for(int i = 0; i < rowNum; i++){
+			  if(Mainsymbols[i] == param){
+				  	
+tempADD = Mainaddress[i];
+					for(int i = 0;i < 4; i ++){
+					anotherChar = tempADD[i];
+					tempBob += anotherChar;
+					std::stringstream bbb;
+					bbb << tempBob;
+					int ccc;
+					bbb>> std::hex >> ccc;
+					
+					toHex3[i] = ccc;
+					tempBob= "";
+				}
+				int power3 = 3;
+				int p;
+				int s;
+				int a;
+				int o;
+				int mathAdd;
+				s =  toHex3[0]*pow(16.0, 3);
+				a =  toHex3[1]*pow(16.0, 2);
+				p =  toHex3[2]*pow(16.0, 1);
+				o =  toHex3[3]*pow(16.0, 0);
+				mathAdd = s + a + p + o;
+				mathAdd+= *addPtr + *lengthPtr;
+				
+				 cout<<"        ";
+				 cout<<setfill(' ')<<setw(6)<<left<<param;
+				 cout<<"  ";
+				cout<<setfill('0')<<setw(6)<<right<<mathAdd<<endl;
+				cout<<"  "<<endl;
+				param = "";
+					break;
+			}
+		 }
+	 }
+	 }
+	 *addPtr = bob7;
+	 *lengthPtr = finalLength;
+ }
+ 
+ 
 	int main(int argc, char* argv[]){
 		ifstream listingFile;
 		vector<char>data; 
 		vector<int> newLines;
 		bool noNewline = true;
 		char fileChar;
-	    
+		string Mainaddress [2000];
+		string Mainsymbols [2000];
+		string Maininstruction[2000];
+		string Mainparameter[2000];
+		string Mainopcode[2000];
+		int rowNum = 0;
+		int *rowPtr = &rowNum;
+		int firstAdd = 0;
+		int *addPtr = &firstAdd;
+		int length = 0;
+		int *lengthPtr = &length;
+		bool firstPass;
 		// cheking if a listing file is provided
 		if(argc < 2){
 			cout<<"No listing files were provided."<< endl;  
@@ -292,7 +562,11 @@ while(fileSize != data.size()-1){
 	 	for(int i = 2; i <= argc; i++){
 			noNewline = true;
 			listingFile.open(argv[i-1]);
-			
+			if(i == 2){
+				firstPass = true;
+			}else{
+				firstPass = false;
+			}
 			// while it is true it runs	 
 			// While the line is being read and no new line is found, the while loop runs.
 			while(noNewline){
@@ -315,8 +589,10 @@ while(fileSize != data.size()-1){
 					noNewline = false; // ending the while loop
 					listingFile.close();// closing the current file
 					
-					Print(data, newLines); // instead of clearing it we want to put the data in the ESTAB
+					StoreData(data, newLines, Mainaddress, Mainsymbols, Maininstruction, Mainparameter, Mainopcode,rowPtr); // instead of clearing it we want to put the data in the ESTAB
 					data.clear();
+					///start working here
+					PrintESTAB(Mainaddress, Mainsymbols, Maininstruction, Mainparameter, Mainopcode,rowNum, addPtr, lengthPtr, firstPass);
 				}
 		  		data.push_back(fileChar);
 			} 
