@@ -12,7 +12,7 @@ string FixInstructions(string element);
 string FixParameter(string element);
 string FixOpcode(string element);
 void PrintESTAB(string Mainaddress[], string Mainsymbols[], string Maininstruction[],string Mainparameter[], string Mainopcode[], int rowNum);
-void PrintObj(string Mainaddress[], string Mainsymbols[], string Mainparameter[],string Mainopcode[],int rowNum);
+void PrintObj(string Mainaddress[], string Mainsymbols[], string Mainparameter[],string Mainopcode[], string Maininstruction[],int rowNum);
 void StoreData(vector<char> data, vector<int> newLines, string Mainaddress[],string Mainsymbols[],string Maininstruction[],string Mainparameter[],string Mainopcode[], int *rowPtr){
 	// convert the characers to either a string or an int then create the ESTAB
 	string address [2000];
@@ -26,8 +26,8 @@ void StoreData(vector<char> data, vector<int> newLines, string Mainaddress[],str
 	int arrSize;
 	// printing the file
 //for(int i  = 0; i < int(data.size()-1); i++){
-		//cout << char(data[i]);
-	//}
+//		cout << char(data[i]);
+//	}
 
 		for(int i  = 0; i < data.size()-1; i++){// saving the spots where there is a space in this file
 			if(int(data[i]) == 10){
@@ -54,7 +54,6 @@ while(fileSize != data.size()-1){
 	//address
 	for(int i = setI; i < data.size()-1;i++){
 		if(int(data[i]) == 46){ //found a comment
-		cout << "Found Comma" << endl;
 		i = newLines[newlineFound];	// jump to the next line
 		newlineFound++;
 		}
@@ -67,7 +66,6 @@ while(fileSize != data.size()-1){
 			}
 			if(acounter == 7 ){	
 					address[arrayCounter] = sValue;
-					//cout<<"address is "<<address[arrayCounter]<<endl;
 					next = i+1;
 					break;
 			
@@ -414,7 +412,6 @@ if(firstPass == true){
 	 cout<<"  ";
 	 cout<<setfill('0')<<setw(6)<<right<<Mainaddress[0]<<"  ";
 	 cout<<setfill('0')<<setw(6)<<right<<hex<<finalLength<<endl;
-
 	 // Put these into out to put into the ESTAB:
 	 out<<setfill(' ')<<setw(6)<<left<<Mainsymbols[0];
 	 out<<"        ";
@@ -471,6 +468,7 @@ if(firstPass == true){
 			 param +=aChar;
 			 } 
 		 }
+		 //first pass with one
 		 for(int i = 0; i < rowNum; i++){
 			  if(Mainsymbols[i] == param){
 				 cout<<"        ";
@@ -606,14 +604,198 @@ if(firstPass == true){
 	 out.close();
  }
  
- void PrintObj(string Mainaddress[], string Mainsymbols[], string Mainparameter[],string Mainopcode[],int rowNum){
+ void PrintObj(string Mainaddress[], string Mainsymbols[], string Mainparameter[],string Mainopcode[],string Maininstruction[], int rowNum){
 	cout<<"H";
 	 cout<<setfill(' ')<<setw(6)<<left<<Mainsymbols[0];
 	 cout<<setfill('0')<<setw(6)<<left<<"000000";
+	 int finalLength;
+	char aChar;
+	string bob = Mainaddress[rowNum]; // length of control section
+	 string bob2;
+	 int toHex[4];
+
+ for(int i = 0;i < bob.length(); i ++){
+	 aChar = bob[i];
+	 bob2 += aChar;
+	 std::stringstream b;
+	b << bob2;
+	int c;
+	b >> std::hex >> c;
+	toHex[i] = c;
+	bob2 = "";
+ }
+ int power = 3;
+ cout<<finalLength<<endl;
+	for(int i = 0; i < 4; i++){
+		finalLength += toHex[i]*pow(16.0, power);
+		power --;
+	}
+		finalLength+=3;
+	cout<<"D";	
+		string temp = Mainparameter[1];
+		 string param;
+		 for(int i = 0; i < temp.length(); i++){
+			 aChar = temp[i];
+			 if(int(aChar) == 44){
+				 for(int j = 0; j < rowNum; j ++){
+					 if(Mainsymbols[j] == param){
+						 cout<<setfill(' ')<<setw(6)<<left<<param;
+						cout<<setfill('0')<<setw(6)<<right<<Mainaddress[j];
+						
+						param = "";
+						break;
+					 }  
+				 }
+			 }else{
+			 param +=aChar;
+			 } 
+		 }		 
+		 for(int i = 0; i < rowNum; i++){
+			  if(Mainsymbols[i] == param){
+				  
+				 cout<<setfill(' ')<<setw(6)<<left<<param;
+				cout<<setfill('0')<<setw(6)<<right<<Mainaddress[i]<<endl;
+				param = "";
+					break;
+			}
+		 } 
+		 
+		 cout<<"R";
+		 string temp2 = Mainparameter[2];
+		 string par;
+		 
+		 for(int i = 0; i < temp2.length(); i++){
+			 aChar = temp2[i];
+			 if(int(aChar) == 44){
+						 cout<<setfill(' ')<<setw(6)<<left<<par;
+						par = "";
+			 }else{
+			 par +=aChar;
+			 } 
+		 }		 
+		 for(int i = 0; i < rowNum; i++){
+			  if(Mainparameter[i] == par){  
+				 cout<<setfill(' ')<<setw(6)<<left<<par;
+				par = "";
+					break;
+			}
+		 }
+
+cout<<endl;		 
+	int numOfOP = 0;
+	string holder;
+	char part;
+	int line = 0;
+	for(int i = 3; i <= rowNum ;i++){
+		holder = Mainopcode[i];
+		if(holder == " "){
+			
+		}else{
+		for(int j = 0; j < holder.length(); j ++){
+		part = holder[j];
+		if(numOfOP == 58){
+			line = i;
+		}
+		numOfOP++;
+		}
+		}
+
+	}
+	holder = "";
+	int oneD = 29;
+	int six = 0;
+	int oCounter = 0;
+	char nums;
+	for(int i  = 1; i < rowNum; i++){
+		if(Maininstruction[i] == "EXTDEF" && Maininstruction[i+1] == "EXTREF"){
+
+			cout<<"T";
+			cout<<setfill('0')<<setw(6)<<right<<six<<uppercase<<hex<<oneD;
+			for(int j = 3; j <= rowNum; j ++){
+				if(j == line){
+					six += (numOfOP - oCounter)/2; // how much is left
+					oCounter = 0;
+					cout<<endl<<"T";
+					cout<<setfill('0')<<setw(6)<<right<<six;
+				}
+				holder = Mainopcode[j];
+				if(holder == " "){}else{
+				cout<< Mainopcode[j];
+				for(int k = 0; k < holder.length(); k++){
+				nums = holder[i];
+				oCounter++;
+				}
+				}
+			}
+			cout<<endl;
+			break;
+		}else if (Maininstruction[i] == "EXTDEF" && Maininstruction[i+1] != "EXTREF"){
+						cout<<"T";
+			cout<<setfill('0')<<setw(6)<<right<<six<<uppercase<<hex<<oneD;
+			for(int j = 3; j <= rowNum; j ++){
+				if(j == line){
+					six += (numOfOP - oCounter)/2; // how much is left
+					oCounter = 0;
+					cout<<endl<<"T";
+					cout<<setfill('0')<<setw(6)<<right<<six;
+				}
+				holder = Mainopcode[j];
+				if(holder == " "){}else{
+				cout<< Mainopcode[j];
+				for(int k = 0; k < holder.length(); k++){
+				nums = holder[i];
+				oCounter++;
+				}
+				}
+			}
+			cout<<endl;
+			break;
+		}else{
+						cout<<"T";
+			cout<<setfill('0')<<setw(6)<<right<<six<<uppercase<<hex<<oneD;
+			for(int j = 3; j <= rowNum; j ++){
+				if(j == line){
+					six += (numOfOP - oCounter)/2; // how much is left
+					oCounter = 0;
+					cout<<endl<<"T";
+					cout<<setfill('0')<<setw(6)<<right<<six;
+				}
+				holder = Mainopcode[j];
+				if(holder == " "){}else{
+				cout<< Mainopcode[j];
+				for(int k = 0; k < holder.length(); k++){
+				nums = holder[i];
+				oCounter++;
+				}
+				}
+			}
+			cout<<endl;
+			break;
+		}
+	}
+	
+	string mod;
+	char mMod;
+	string newAdd;
 	for(int i = 0; i < rowNum; i++){
+		mod = Maininstruction[i];
+		mMod = mod[0];
+		if(int(mMod) == 43){
+			cout<<"M";
+			newAdd = Mainaddress[i];
+			////////
+			cout<<newAdd<<"05"<<"+"<<Mainsymbols[0]<<endl;;
+			
+		}
 		
 		
 	}
+	cout<<"E000000";
+
+
+
+	
+		
  }
 	int main(int argc, char* argv[]){
 		ifstream listingFile;
@@ -676,7 +858,7 @@ if(firstPass == true){
 					data.clear();
 					///start working here
 					PrintESTAB(Mainaddress, Mainsymbols, Maininstruction, Mainparameter, Mainopcode,rowNum, addPtr, lengthPtr, firstPass);
-					PrintObj(Mainaddress, Mainsymbols, Mainparameter, Mainopcode,rowNum);
+					PrintObj(Mainaddress, Mainsymbols, Mainparameter, Mainopcode,Maininstruction,rowNum);
 				}
 		  		data.push_back(fileChar);
 			} 
