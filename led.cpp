@@ -372,6 +372,9 @@ while(fileSize != data.size()-1){
 	string bob = Mainaddress[rowNum]; // length of control section
 	 string bob2;
 	 int toHex[4];
+	 ofstream out;
+	 out.open("estab", ios::out | ios::app);
+
 	
  for(int i = 0;i < bob.length(); i ++){
 	 aChar = bob[i];
@@ -419,6 +422,14 @@ if(firstPass == true){
 	 cout<<"  ";
 	 cout<<setfill('0')<<setw(6)<<right<<Mainaddress[0]<<"  ";
 	 cout<<setfill('0')<<setw(6)<<right<<hex<<finalLength<<endl;
+
+	 // Put these into out to put into the ESTAB:
+	 out<<setfill(' ')<<setw(6)<<left<<Mainsymbols[0];
+	 out<<"        ";
+	 out<<"  ";
+	 out<<setfill('0')<<setw(6)<<right<<Mainaddress[0]<<"  ";
+	 out<<setfill('0')<<setw(6)<<right<<hex<<finalLength<<endl;
+
  }else{
 	 bob7 = *lengthPtr + *addPtr;
 	 cout<<setfill(' ')<<setw(6)<<left<<Mainsymbols[0];
@@ -426,6 +437,14 @@ if(firstPass == true){
 	 cout<<"  ";
 	 cout<<setfill('0')<<setw(6)<<right<<hex<<bob7<<"  ";
 	 cout<<setfill('0')<<setw(6)<<right<<hex<<finalLength<<endl;
+
+	 // Put these into out to put into the ESTAB:
+	 out<<setfill(' ')<<setw(6)<<left<<Mainsymbols[0];
+	 out<<"        ";
+	 out<<"  ";
+	 out<<setfill('0')<<setw(6)<<right<<hex<<bob7<<"  ";
+	 out<<setfill('0')<<setw(6)<<right<<hex<<finalLength<<endl;
+
 	 
  }
 	 if(Maininstruction[1] == "EXTDEF"){
@@ -438,11 +457,22 @@ if(firstPass == true){
 				 cout<<"        ";
 				 cout<<setfill(' ')<<setw(6)<<left<<param;
 				 cout<<"  ";
+
+				 // Into ESTAB:
+				 out<<"        ";
+				 out<<setfill(' ')<<setw(6)<<left<<param;
+				 out<<"  ";
+
 				 for(int j = 0; j < rowNum; j ++){
 					 if(Mainsymbols[j] == param){
 						
 						cout<<setfill('0')<<setw(6)<<right<<Mainaddress[j];
 						cout<<"  "<<endl;
+
+						// Into ESTAB:
+						out<<setfill('0')<<setw(6)<<right<<Mainaddress[j];
+						out<<"  "<<endl;
+
 						param = "";
 						break;
 					 }  
@@ -458,6 +488,14 @@ if(firstPass == true){
 				 cout<<"  ";
 				cout<<setfill('0')<<setw(6)<<right<<Mainaddress[i];
 				cout<<"  "<<endl;
+
+				// Into ESTAB:
+				out<<"        ";
+				out<<setfill(' ')<<setw(6)<<left<<param;
+				out<<"  ";
+				out<<setfill('0')<<setw(6)<<right<<Mainaddress[i];
+				out<<"  "<<endl;
+
 				param = "";
 					break;
 			}
@@ -475,10 +513,21 @@ if(firstPass == true){
 				 cout<<"        ";
 				 cout<<setfill(' ')<<setw(6)<<left<<param;
 				 cout<<"  ";
+
+				 // Into ESTAB:
+				 out<<"        ";
+				 out<<setfill(' ')<<setw(6)<<left<<param;
+				 out<<"  ";
+
 				 for(int j = 0; j < rowNum; j ++){
 					 if(Mainsymbols[j] == param){
 						cout<<setfill('0')<<setw(6)<<right<<Mainaddress[j];
 						cout<<"  "<<endl;
+
+						// Into ESTAB:
+						out<<setfill('0')<<setw(6)<<right<<Mainaddress[j];
+						out<<"  "<<endl;
+
 						param = "";
 						break;
 					 }  
@@ -521,6 +570,14 @@ tempADD = Mainaddress[i];
 				 cout<<"  ";
 				cout<<setfill('0')<<setw(6)<<right<<mathAdd<<endl;
 				cout<<"  "<<endl;
+
+				// Into ESTAB:
+				out<<"        ";
+				out<<setfill(' ')<<setw(6)<<left<<param;
+				out<<"  ";
+				out<<setfill('0')<<setw(6)<<right<<mathAdd<<endl;
+				out<<"  "<<endl;
+
 				param = "";
 					break;
 			}
@@ -529,6 +586,8 @@ tempADD = Mainaddress[i];
 	 }
 	 *addPtr = bob7;
 	 *lengthPtr = finalLength;
+
+	 out.close();
  }
  
  
